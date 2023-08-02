@@ -135,6 +135,7 @@ impl Builder for FsBuilder {
 
         // Canonicalize the root directory. This should work since we already know that we can
         // get the metadata of the path.
+        #[cfg(not(windows))]
         let root = root.canonicalize().map_err(|e| {
             Error::new(
                 ErrorKind::Unexpected,
@@ -161,12 +162,13 @@ impl Builder for FsBuilder {
             })
             .unwrap_or(Ok(None))?;
 
-        debug!("backend build finished: {:?}", &self);
-        Ok(FsBackend {
+        let backend = FsBackend {
             root,
             atomic_write_dir,
             enable_path_check: self.enable_path_check,
-        })
+        };
+        debug!("backend build finished: {backend:?}");
+        Ok(backend)
     }
 }
 
